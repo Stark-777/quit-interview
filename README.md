@@ -11,6 +11,24 @@ Public-read, verified-anonymous quit review platform with moderation-first publi
 
 ## Setup
 
+### One-command local bootstrap
+
+From project root:
+
+`./scripts/start-from-zero.sh`
+
+This will:
+- create `.env` from `.env.example` if missing
+- ensure PostgreSQL role/database exist
+- run install + Prisma generate/migrate/seed
+- start the Next.js app
+
+If your admin DB user is not `postgres/postgres`, run:
+
+`ADMIN_DB_USER=<admin_user> ADMIN_DB_PASSWORD=<admin_password> ./scripts/start-from-zero.sh`
+
+### Manual setup
+
 1. Copy `.env.example` to `.env` and set your Postgres URL.
 2. Install dependencies:
    - `npm install`
