@@ -1,0 +1,275 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  employee
+  company_admin
+  moderator
+}
+
+enum UserStatus {
+  active
+  suspended
+}
+
+enum CompanyStatus {
+  pending
+  approved
+  rejected
+}
+
+enum ClaimStatus {
+  unclaimed
+  pending
+  claimed
+  rejected
+}
+
+enum VerificationStatus {
+  pending
+  verified
+  rejected
+}
+
+enum SeparationType {
+  quit
+  layoff
+  termination
+  other
+}
+
+enum ReviewStatus {
+  pending
+  published
+  rejected
+}
+
+enum ModerationTargetType {
+  company
+  quit_interview
+  company_response
+  company_claim
+  role_change
+}
+
+enum ModerationCaseStatus {
+  open
+  approved
+  rejected
+}
+
+enum ModerationReason {
+  policy_pass
+  pii_detected
+  harassment
+  defamation_risk
+  spam
+  duplicate
+  insufficient_evidence
+}
+
+enum ReportTargetType {
+  quit_interview
+  company_response
+}
+
+model User {
+  id                 String                 @id @default(cuid())
+  email              String                 @unique
+  role               UserRole               @default(employee)
+  status             UserStatus             @default(active)
+  createdAt          DateTime               @default(now())
+  updatedAt          DateTime               @updatedAt
+  sessions           Session[]
+  employmentChecks   EmploymentVerification[]
+  interviews         QuitInterview[]
+  companyResponses   CompanyResponse[]
+  moderationCases    ModerationCase[]       @relation("CaseModerator")
+  moderationEvents   ModerationEvent[]      @relation("EventActor")
+  companyClaims      CompanyClaim[]
+  reports            Report[]
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model VerificationToken {
+  id        String   @id @default(cuid())
+  email     String
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([email])
+}
+
+model Company {
+  id               String                  @id @default(cuid())
+  name             String
+  slug             String                  @unique
+  website          String?
+  status           CompanyStatus           @default(pending)
+  claimStatus      ClaimStatus             @default(unclaimed)
+  createdById      String?
+  createdAt        DateTime                @default(now())
+  updatedAt        DateTime                @updatedAt
+  aliases          CompanyAlias[]
+  interviews       QuitInterview[]
+  responses        CompanyResponse[]
+  claims           CompanyClaim[]
+  employmentChecks EmploymentVerification[]
+
+  @@index([status])
+}
+
+model CompanyAlias {
+  id        String   @id @default(cuid())
+  companyId String
+  alias     String
+  createdAt DateTime @default(now())
+  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@unique([companyId, alias])
+}
+
+model CompanyClaim {
+  id          String     @id @default(cuid())
+  companyId    String
+  userId      String
+  status      ClaimStatus @default(pending)
+  evidenceUrl String?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  company     Company     @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([companyId, userId])
+}
+
+model EmploymentVerification {
+  id                 String             @id @default(cuid())
+  userId             String
+  companyId          String
+  workEmail          String
+  token              String             @unique
+  optionalDocUrl     String?
+  status             VerificationStatus @default(pending)
+  reviewedById       String?
+  reviewedAt         DateTime?
+  rejectionReason    String?
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+  user               User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  company            Company            @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  interviews         QuitInterview[]
+
+  @@index([userId, companyId, status])
+}
+
+model QuitInterview {
+  id                  String            @id @default(cuid())
+  companyId           String
+  userId              String
+  employmentCheckId   String
+  separationType      SeparationType
+  employmentStartYm   String
+  employmentEndYm     String
+  roleTitle           String?
+  department          String?
+  cultureRating       Int
+  payRating           Int
+  managementRating    Int
+  growthRating        Int
+  workLifeRating      Int
+  reasonForLeaving    String
+  whatWasGood         String
+  whatShouldImprove   String
+  advice              String
+  status              ReviewStatus      @default(pending)
+  moderationNote      String?
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+  company             Company           @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  user                User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  employmentCheck     EmploymentVerification @relation(fields: [employmentCheckId], references: [id], onDelete: Cascade)
+  companyResponse     CompanyResponse?
+  reports             Report[]
+
+  @@index([companyId, status])
+  @@index([createdAt])
+}
+
+model CompanyResponse {
+  id                String       @id @default(cuid())
+  quitInterviewId   String       @unique
+  companyId         String
+  authoredById      String
+  body              String
+  status            ReviewStatus @default(pending)
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+  quitInterview     QuitInterview @relation(fields: [quitInterviewId], references: [id], onDelete: Cascade)
+  company           Company      @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  authoredBy        User         @relation(fields: [authoredById], references: [id], onDelete: Cascade)
+  reports           Report[]
+
+  @@index([companyId, status])
+}
+
+model ModerationCase {
+  id            String               @id @default(cuid())
+  targetType    ModerationTargetType
+  targetId      String
+  status        ModerationCaseStatus @default(open)
+  reason        ModerationReason?
+  note          String?
+  createdAt     DateTime             @default(now())
+  updatedAt     DateTime             @updatedAt
+  moderatedById String?
+  moderatedBy   User?                @relation("CaseModerator", fields: [moderatedById], references: [id])
+  events        ModerationEvent[]
+
+  @@index([status, targetType])
+}
+
+model ModerationEvent {
+  id               String               @id @default(cuid())
+  moderationCaseId String
+  action           String
+  payloadJson      String?
+  createdAt        DateTime             @default(now())
+  actorId          String?
+  moderationCase   ModerationCase       @relation(fields: [moderationCaseId], references: [id], onDelete: Cascade)
+  actor            User?                @relation("EventActor", fields: [actorId], references: [id])
+
+  @@index([moderationCaseId, createdAt])
+}
+
+model Report {
+  id                 String           @id @default(cuid())
+  reporterId         String?
+  targetType         ReportTargetType
+  quitInterviewId    String?
+  companyResponseId  String?
+  reason             String
+  createdAt          DateTime         @default(now())
+  reporter           User?            @relation(fields: [reporterId], references: [id], onDelete: SetNull)
+  quitInterview      QuitInterview?   @relation(fields: [quitInterviewId], references: [id], onDelete: Cascade)
+  companyResponse    CompanyResponse? @relation(fields: [companyResponseId], references: [id], onDelete: Cascade)
+
+  @@index([targetType, createdAt])
+}
