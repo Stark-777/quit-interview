@@ -25,21 +25,23 @@ export default async function CompanyPage({
   }
 
   return (
-    <section className="stack">
-      <div className="card stack">
+    <section className="stack" style={{ marginTop: '1rem' }}>
+      <article className="hero reveal">
         <h2>{company.name}</h2>
-        <p className="meta">{company.website ?? 'No website listed'}</p>
-      </div>
+        <p>{company.website ?? 'No website listed'}</p>
+      </article>
 
-      <h3>Published interviews</h3>
+      <h3 className="section-title reveal">Published interviews</h3>
       <div className="grid">
         {company.interviews.map((interview) => (
-          <article key={interview.id} className="card stack">
+          <article key={interview.id} className="card stack reveal">
             <p className="meta">
-              {interview.separationType} • {interview.employmentStartYm} to {interview.employmentEndYm}
+              {interview.separationType.toUpperCase()} • {interview.employmentStartYm} to {interview.employmentEndYm}
             </p>
-            <p>{interview.reasonForLeaving.slice(0, 160)}...</p>
-            <Link href={`/interviews/${interview.id}`}>Read interview</Link>
+            <p>{interview.reasonForLeaving.slice(0, 170)}...</p>
+            <Link className="card-link" href={`/interviews/${interview.id}`}>
+              Read full interview
+            </Link>
           </article>
         ))}
       </div>

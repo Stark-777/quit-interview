@@ -30,52 +30,57 @@ export default function SubmitPage() {
   }
 
   return (
-    <section className="stack">
-      <h2>Submit a Quit Interview</h2>
-      <p className="meta">
-        V1 submission flow includes sign-in, employment verification, and moderation. Use API endpoints below for full flow.
-      </p>
+    <section className="stack" style={{ marginTop: '1rem' }}>
+      <article className="hero reveal">
+        <h2>Submit a quit interview</h2>
+        <p>
+          You verify identity privately, publish anonymously, and your review enters moderation before public release.
+        </p>
+      </article>
 
-      <form className="card stack" onSubmit={startAuth}>
-        <label className="label" htmlFor="email">
-          Work or personal email for magic link sign-in
-        </label>
-        <input
-          className="input"
-          id="email"
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-        <button className="button" type="submit">
-          Send magic link
-        </button>
-      </form>
+      <div className="two-col">
+        <form className="card stack reveal" onSubmit={startAuth}>
+          <h3>Step 1: Request magic link</h3>
+          <label className="label" htmlFor="email">
+            Work or personal email
+          </label>
+          <input
+            className="input"
+            id="email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+          <button className="button" type="submit">
+            Send magic link
+          </button>
+        </form>
 
-      <form className="card stack" onSubmit={completeAuth}>
-        <label className="label" htmlFor="token">
-          Paste auth token from dev magic link
-        </label>
-        <input
-          className="input"
-          id="token"
-          value={token}
-          onChange={(e) => setToken(e.target.value)}
-          required
-        />
-        <button className="button" type="submit">
-          Complete sign-in
-        </button>
-      </form>
+        <form className="card stack reveal" onSubmit={completeAuth}>
+          <h3>Step 2: Complete sign-in</h3>
+          <label className="label" htmlFor="token">
+            Token from dev magic link
+          </label>
+          <input className="input" id="token" value={token} onChange={(e) => setToken(e.target.value)} required />
+          <button className="button" type="submit">
+            Complete sign-in
+          </button>
+        </form>
+      </div>
 
-      {message ? <div className="card">{message}</div> : null}
+      {message ? (
+        <article className="card reveal">
+          <h3>Result</h3>
+          <p>{message}</p>
+        </article>
+      ) : null}
 
-      <article className="card stack">
+      <article className="card stack reveal">
         <h3>Next API steps after sign-in</h3>
-        <code>POST /api/verifications/start</code>
-        <code>POST /api/verifications/complete</code>
-        <code>POST /api/interviews</code>
+        <p className="inline-code">POST /api/verifications/start</p>
+        <p className="inline-code">POST /api/verifications/complete</p>
+        <p className="inline-code">POST /api/interviews</p>
       </article>
     </section>
   );

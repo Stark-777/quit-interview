@@ -22,17 +22,32 @@ export default async function HomePage() {
   ]);
 
   return (
-    <section className="stack">
-      <h2>Latest Published Quit Interviews</h2>
+    <section className="stack" style={{ marginTop: '1rem' }}>
+      <article className="hero reveal">
+        <h2>Honest exits, healthier companies.</h2>
+        <p>
+          Quit Interview is a verified-anonymous space where former employees share structured exit feedback and companies
+          publicly respond. Every post is moderated before publication.
+        </p>
+        <div className="badge-row" style={{ marginTop: '0.8rem' }}>
+          <span className="badge">Verified identity</span>
+          <span className="badge">Anonymous public voice</span>
+          <span className="badge">Pre-publish moderation</span>
+        </div>
+      </article>
+
+      <h2 className="section-title reveal">Latest Published Interviews</h2>
       <div className="grid">
         {interviews.map((interview) => (
-          <article key={interview.id} className="card stack">
-            <h3>
-              <Link href={`/interviews/${interview.id}`}>{interview.company.name}</Link>
-            </h3>
+          <article key={interview.id} className="card stack reveal">
             <p className="meta">
               {interview.separationType.toUpperCase()} • {interview.employmentStartYm} to {interview.employmentEndYm}
             </p>
+            <h3>
+              <Link className="card-link" href={`/interviews/${interview.id}`}>
+                {interview.company.name}
+              </Link>
+            </h3>
             <RatingSummary
               cultureRating={interview.cultureRating}
               payRating={interview.payRating}
@@ -40,19 +55,24 @@ export default async function HomePage() {
               growthRating={interview.growthRating}
               workLifeRating={interview.workLifeRating}
             />
-            <p>{interview.reasonForLeaving.slice(0, 140)}...</p>
+            <p>{interview.reasonForLeaving.slice(0, 160)}...</p>
           </article>
         ))}
       </div>
 
-      <h2 style={{ marginTop: '1rem' }}>Approved Companies</h2>
+      <h2 className="section-title reveal">Approved Companies</h2>
       <div className="grid">
         {companies.map((company) => (
-          <article className="card" key={company.id}>
+          <article className="card stack reveal" key={company.id}>
             <h3>
-              <Link href={`/companies/${company.slug}`}>{company.name}</Link>
+              <Link className="card-link" href={`/companies/${company.slug}`}>
+                {company.name}
+              </Link>
             </h3>
             <p className="meta">{company.website ?? 'No website listed'}</p>
+            <Link className="inline-code" href={`/companies/${company.slug}`}>
+              View company profile
+            </Link>
           </article>
         ))}
       </div>

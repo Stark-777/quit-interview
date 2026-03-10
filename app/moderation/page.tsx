@@ -14,19 +14,24 @@ export default async function ModerationPage() {
   });
 
   return (
-    <section className="stack">
-      <h2>Moderation Queue</h2>
-      <p className="meta">Pre-publish review queue for companies, interviews, claims, and company responses.</p>
+    <section className="stack" style={{ marginTop: '1rem' }}>
+      <article className="hero reveal">
+        <h2>Moderation queue</h2>
+        <p>Pre-publish decisions for interviews, company profiles, responses, claims, and role actions.</p>
+      </article>
 
       <div className="grid">
         {queue.map((item) => (
-          <article className="card stack" key={item.id}>
-            <h3>{item.targetType}</h3>
+          <article className="card stack reveal" key={item.id}>
+            <div className="badge-row">
+              <span className="badge">{item.targetType}</span>
+              <span className="badge">open</span>
+            </div>
             <p className="meta">Case #{item.id}</p>
-            <p className="meta">Target ID: {item.targetId}</p>
+            <p className="meta">Target: {item.targetId}</p>
             <p className="meta">Reason: {item.reason ?? 'none'}</p>
             <p>{item.note ?? 'No note'}</p>
-            <code>POST /api/moderation/cases/{item.id}</code>
+            <p className="inline-code">POST /api/moderation/cases/{item.id}</p>
           </article>
         ))}
       </div>

@@ -9,5 +9,5 @@ export function RatingSummary(props: {
 }) {
   const avg = averageRating(props);
 
-  return <span className="meta">Avg rating: {avg}/5</span>;
+  return <span className="badge">Average rating {avg}/5</span>;
 }

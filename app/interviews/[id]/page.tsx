@@ -23,19 +23,24 @@ export default async function InterviewPage({
   }
 
   return (
-    <section className="stack">
-      <article className="card stack">
+    <section className="stack" style={{ marginTop: '1rem' }}>
+      <article className="hero reveal">
         <h2>{interview.company.name}</h2>
-        <p className="meta">
-          {interview.separationType} • {interview.employmentStartYm} to {interview.employmentEndYm}
+        <p>
+          {interview.separationType.toUpperCase()} • {interview.employmentStartYm} to {interview.employmentEndYm}
         </p>
-        <RatingSummary
-          cultureRating={interview.cultureRating}
-          payRating={interview.payRating}
-          managementRating={interview.managementRating}
-          growthRating={interview.growthRating}
-          workLifeRating={interview.workLifeRating}
-        />
+        <div className="badge-row" style={{ marginTop: '0.5rem' }}>
+          <RatingSummary
+            cultureRating={interview.cultureRating}
+            payRating={interview.payRating}
+            managementRating={interview.managementRating}
+            growthRating={interview.growthRating}
+            workLifeRating={interview.workLifeRating}
+          />
+        </div>
+      </article>
+
+      <article className="card stack reveal">
         <h3>Reason for leaving</h3>
         <p>{interview.reasonForLeaving}</p>
         <h3>What was good</h3>
@@ -47,7 +52,7 @@ export default async function InterviewPage({
       </article>
 
       {interview.companyResponse && interview.companyResponse.status === 'published' ? (
-        <article className="card stack">
+        <article className="card stack reveal">
           <h3>Official company response</h3>
           <p>{interview.companyResponse.body}</p>
         </article>
